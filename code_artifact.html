@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТАКТИЧЕСКИЙ ПЛАНШЕТ | Памятка новобранца ВС</title>
+    <!-- Подключение Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Шрифты: Inter и JetBrains Mono для тактического HUD -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Иконки Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        tactical: {
+                            bg: '#0c0e0c',
+                            surface: '#141714',
+                            card: '#1a1e1a',
+                            border: '#2c332c',
+                            olive: '#4a5d3f',
+                            oliveLight: '#6b875b',
+                            sand: '#d4b475',
+                            sandDark: '#9e824c',
+                            danger: '#c94a4a',
+                            warning: '#d99b26',
+                            text: '#e2e6e1',
+                            muted: '#8c968b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-tactical-bg text-tactical-text font-sans antialiased selection:bg-tactical-sand selection:text-tactical-bg relative overflow-x-hidden">
+
+    <!-- Уведомление (Toast) для копирования и действий -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-tactical-card border border-tactical-sand text-tactical-text px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3">
+            <div class="w-8 h-8 rounded-md bg-tactical-sand/20 text-tactical-sand flex items-center justify-center shrink-0">
+                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p id="toast-title" class="text-sm font-bold text-tactical-sand">Скопировано в буфер</p>
+                <p id="toast-desc" class="text-xs text-tactical-muted font-mono mt-0.5">Готово к вставке в игровой чат (Ctrl+V)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Верхняя навигационная панель (HUD) -->
+    <header class="sticky top-0 z-40 bg-tactical-bg/90 backdrop-blur-md border-b border-tactical-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Логотип / Статус терминала -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-lg bg-tactical-olive/30 border border-tactical-oliveLight/50 flex items-center justify-center text-tactical-sand group-hover:border-tactical-sand transition-colors">
+                        <i data-lucide="shield" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold tracking-wider text-sm sm:text-base uppercase text-white">АРМИЯ // ПАМЯТКА</span>
+                            <span class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-tactical-olive/30 text-tactical-oliveLight border border-tactical-oliveLight/30">
+                                <span class="w-1.5 h-1.5 rounded-full bg-tactical-oliveLight animate-pulse"></span> ONLINE
+                            </span>
+                        </div>
+                        <p class="text-[11px] font-mono text-tactical-muted">ТЕРМИНАЛ НОВОБРАНЦА v2.4</p>
+                    </div>
+                </a>
+
+                <!-- Десктоп навигация -->
+                <nav class="hidden lg:flex items-center gap-1">
+                    <a href="#kmb" class="px-3 py-2 rounded-md text-xs font-semibold uppercase tracking-wider text-tactical-muted hover:text-tactical-sand hover:bg-tactical-card transition-colors">КМБ</a>
+                    <a href="#subordination" class="px-3 py-2 rounded-md text-xs font-semibold uppercase tracking-wider text-tactical-muted hover:text-tactical-sand hover:bg-tactical-card transition-colors">Субординация</a>
+                    <a href="#radio" class="px-3 py-2 rounded-md text-xs font-semibold uppercase tracking-wider text-tactical-muted hover:text-tactical-sand hover:bg-tactical-card transition-colors">Рация и Коды</a>
+                    <a href="#charter" class="px-3 py-2 rounded-md text-xs font-semibold uppercase tracking-wider text-tactical-muted hover:text-tactical-sand hover:bg-tactical-card transition-colors">Устав и КПП</a>
+                    <a href="#ranks" class="px-3 py-2 rounded-md text-xs font-semibold uppercase tracking-wider text-tactical-muted hover:text-tactical-sand hover:bg-tactical-card transition-colors">Звания</a>
+                    <a href="#exam" class="ml-2 px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider bg-tactical-sand text-tactical-bg hover:bg-tactical-sandDark transition-colors flex items-center gap-1.5">
+                        <i data-lucide="award" class="w-4 h-4"></i> Тест на присягу
+                    </a>
+                </nav>
+
+                <!-- Кнопка мобильного меню -->
+                <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-md text-tactical-muted hover:text-white hover:bg-tactical-card border border-tactical-border">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Выпадающее мобильное меню -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-tactical-surface border-b border-tactical-border px-4 pt-2 pb-4 space-y-1">
+            <a href="#kmb" class="mobile-link block px-3 py-2.5 rounded-md text-sm font-medium text-tactical-text hover:bg-tactical-card hover:text-tactical-sand">01. Курс молодого бойца (КМБ)</a>
+            <a href="#subordination" class="mobile-link block px-3 py-2.5 rounded-md text-sm font-medium text-tactical-text hover:bg-tactical-card hover:text-tactical-sand">02. Правила субординации</a>
+            <a href="#radio" class="mobile-link block px-3 py-2.5 rounded-md text-sm font-medium text-tactical-text hover:bg-tactical-card hover:text-tactical-sand">03. Тен-коды и генератор доклада</a>
+            <a href="#charter" class="mobile-link block px-3 py-2.5 rounded-md text-sm font-medium text-tactical-text hover:bg-tactical-card hover:text-tactical-sand">04. Выжимка из Устава и КПП</a>
+            <a href="#ranks" class="mobile-link block px-3 py-2.5 rounded-md text-sm font-medium text-tactical-text hover:bg-tactical-card hover:text-tactical-sand">05. Иерархия и звания</a>
+            <a href="#exam" class="mobile-link block px-3 py-2.5 mt-2 rounded-md text-sm font-bold text-center bg-tactical-sand text-tactical-bg">06. Пройти тест к присяге</a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-16 sm:space-y-24">
+
+        <!-- 1. ГЛАВНЫЙ ЭКРАН (HERO) -->
+        <section class="relative rounded-2xl bg-tactical-surface border border-tactical-border p-6 sm:p-10 lg:p-12 overflow-hidden">
+            <!-- Декоративные элементы тактического HUD -->
+            <div class="absolute top-0 right-0 p-4 font-mono text-[10px] text-tactical-muted/50 hidden sm:block select-none">
+                SEC_LEVEL: RECRUIT // SECTOR_01<br>
+                LAT: 34.0522° N // LON: 118.2437° W
+            </div>
+            <div class="absolute -bottom-24 -right-24 w-72 h-72 bg-tactical-olive/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-3xl relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tactical-olive/20 border border-tactical-oliveLight/40 text-tactical-sand text-xs font-mono uppercase tracking-wider mb-6">
+                    <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+                    Добро пожаловать в ряды Вооруженных Сил
+                </div>
+                
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+                    Тактический справочник <span class="text-tactical-sand">новобранца</span>
+                </h1>
+                
+                <p class="text-base sm:text-lg text-tactical-muted leading-relaxed mb-8">
+                    Военная база — это дисциплина, слаженность и защита стратегических объектов штата. Здесь собрана вся необходимая информация, чтобы ты без ошибок прошёл КМБ, сдал присягу и начал уверенный карьерный рост от Рядового до Офицера.
+                </p>
+
+                <!-- Быстрая навигация плитками -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <a href="#kmb" class="flex items-center gap-2.5 p-3 rounded-xl bg-tactical-card border border-tactical-border hover:border-tactical-sand/60 transition-all group">
+                        <div class="p-2 rounded-lg bg-tactical-olive/30 text-tactical-sand group-hover:bg-tactical-sand group-hover:text-tactical-bg transition-colors">
+                            <i data-lucide="compass" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-white">КМБ: С чего начать</span>
+                    </a>
+                    <a href="#subordination" class="flex items-center gap-2.5 p-3 rounded-xl bg-tactical-card border border-tactical-border hover:border-tactical-sand/60 transition-all group">
+                        <div class="p-2 rounded-lg bg-tactical-olive/30 text-tactical-sand group-hover:bg-tactical-sand group-hover:text-tactical-bg transition-colors">
+                            <i data-lucide="message-square" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-white">Субординация</span>
+                    </a>
+                    <a href="#radio" class="flex items-center gap-2.5 p-3 rounded-xl bg-tactical-card border border-tactical-border hover:border-tactical-sand/60 transition-all group">
+                        <div class="p-2 rounded-lg bg-tactical-olive/30 text-tactical-sand group-hover:bg-tactical-sand group-hover:text-tactical-bg transition-colors">
+                            <i data-lucide="radio" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-white">Тен-коды и Рация</span>
+                    </a>
+                    <a href="#charter" class="flex items-center gap-2.5 p-3 rounded-xl bg-tactical-card border border-tactical-border hover:border-tactical-sand/60 transition-all group">
+                        <div class="p-2 rounded-lg bg-tactical-olive/30 text-tactical-sand group-hover:bg-tactical-sand group-hover:text-tactical-bg transition-colors">
+                            <i data-lucide="book-open" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-white">Устав и КПП</span>
+                    </a>
+                    <a href="#ranks" class="flex items-center gap-2.5 p-3 rounded-xl bg-tactical-card border border-tactical-border hover:border-tactical-sand/60 transition-all group">
+                        <div class="p-2 rounded-lg bg-tactical-olive/30 text-tactical-sand group-hover:bg-tactical-sand group-hover:text-tactical-bg transition-colors">
+                            <i data-lucide="chevrons-up" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-white">Система званий</span>
+                    </a>
+                    <a href="#exam" class="flex items-center gap-2.5 p-3 rounded-xl bg-tactical-sand/15 border border-tactical-sand/50 hover:bg-tactical-sand hover:text-tactical-bg transition-all group">
+                        <div class="p-2 rounded-lg bg-tactical-sand text-tactical-bg">
+                            <i data-lucide="check-square" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold text-tactical-sand group-hover:text-tactical-bg">Пройти тест</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. КУРС МОЛОДОГО БОЙЦА (КМБ) -->
+        <section id="kmb" class="scroll-mt-24">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+                <div>
+                    <span class="text-xs font-mono uppercase tracking-widest text-tactical-sand">ЭТАП 01 // ИНСТРУКТАЖ</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Курс молодого бойца (КМБ)</h2>
+                </div>
+                <p class="text-sm text-tactical-muted max-w-md">Пошаговый алгоритм действий в первые 30 минут после зачисления на службу.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Шаг 1 -->
+                <div class="bg-tactical-surface border border-tactical-border rounded-xl p-6 relative flex flex-col justify-between hover:border-tactical-oliveLight transition-colors">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-2.5 py-1 rounded bg-tactical-olive/30 text-tactical-sand font-mono text-xs font-bold">ШАГ 01</span>
+                            <i data-lucide="shirt" class="w-5 h-5 text-tactical-muted"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Получить форму и рацию</h3>
+                        <p class="text-sm text-tactical-muted leading-relaxed">
+                            Пройдите в казарму к шкафчикам снаряжения. Наденьте уставную полевую форму рекрута, возьмите бронежилет, базовый боекомплект и настройте рацию на волну части.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-tactical-border/60 flex items-center justify-between text-xs font-mono text-tactical-oliveLight">
+                        <span>Локация: Казарма</span>
+                        <span>[Обязательно]</span>
+                    </div>
+                </div>
+
+                <!-- Шаг 2 -->
+                <div class="bg-tactical-surface border border-tactical-border rounded-xl p-6 relative flex flex-col justify-between hover:border-tactical-oliveLight transition-colors">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-2.5 py-1 rounded bg-tactical-olive/30 text-tactical-sand font-mono text-xs font-bold">ШАГ 02</span>
+                            <i data-lucide="file-text" class="w-5 h-5 text-tactical-muted"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Изучить устав и речь</h3>
+                        <p class="text-sm text-tactical-muted leading-relaxed">
+                            Ознакомьтесь с правилами субординации и тен-кодами ниже. Запомните: в армии нет слов «да», «нет», «можно». Нарушение речи карается нарядом вне очереди.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-tactical-border/60 flex items-center justify-between text-xs font-mono text-tactical-oliveLight">
+                        <span>Время: ~10 мин</span>
+                        <span>[База знаний]</span>
+                    </div>
+                </div>
+
+                <!-- Шаг 3 -->
+                <div class="bg-tactical-surface border border-tactical-border rounded-xl p-6 relative flex flex-col justify-between hover:border-tactical-oliveLight transition-colors">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-2.5 py-1 rounded bg-tactical-olive/30 text-tactical-sand font-mono text-xs font-bold">ШАГ 03</span>
+                            <i data-lucide="award" class="w-5 h-5 text-tactical-muted"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Сдать присягу и экзамен</h3>
+                        <p class="text-sm text-tactical-muted leading-relaxed">
+                            Дождитесь построения или обратитесь к инструктору Учебного Корпуса (УК). Сдайте текст Военной Присяги, строевую подготовку и устный опрос по Уставу.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-tactical-border/60 flex items-center justify-between text-xs font-mono text-tactical-sand">
+                        <span>Повышение: Рядовой → Ефрейтор</span>
+                    </div>
+                </div>
+
+                <!-- Шаг 4 -->
+                <div class="bg-tactical-surface border border-tactical-border rounded-xl p-6 relative flex flex-col justify-between hover:border-tactical-oliveLight transition-colors">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-2.5 py-1 rounded bg-tactical-olive/30 text-tactical-sand font-mono text-xs font-bold">ШАГ 04</span>
+                            <i data-lucide="shield-check" class="w-5 h-5 text-tactical-muted"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Заступить на первый пост</h3>
+                        <p class="text-sm text-tactical-muted leading-relaxed">
+                            Получите назначение на КПП или Вышку. Делайте доклады в рацию каждые 10 минут строго по форме, проверяйте документы у всех прибывающих на территорию.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-tactical-border/60 flex items-center justify-between text-xs font-mono text-tactical-oliveLight">
+                        <span>Доклад: каждые 10 мин</span>
+                        <span>[Служба]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Текст присяги с кнопкой копирования -->
+            <div class="mt-6 bg-tactical-card border border-tactical-border rounded-xl p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="scroll-text" class="w-4 h-4 text-tactical-sand"></i>
+                        <span class="text-xs font-mono uppercase tracking-wider text-tactical-sand font-bold">Текст Военной Присяги (для сдачи на плацу)</span>
+                    </div>
+                    <p id="oath-text" class="text-sm text-tactical-text italic leading-relaxed">
+                        «Я, [Имя Фамилия], торжественно присягаю на верность своему Отечеству и Штату. Клянусь свято соблюдать Конституцию и Устав Вооруженных Сил, строго выполнять требования воинских уставов, приказы командиров и начальников. Клянусь достойно исполнять воинский долг и мужественно защищать свободу и независимость!»
+                    </p>
+                </div>
+                <button onclick="copyText('oath-text', 'Текст присяги скопирован')" class="shrink-0 px-4 py-2.5 rounded-lg bg-tactical-olive/40 hover:bg-tactical-olive text-white border border-tactical-oliveLight/40 text-xs font-semibold flex items-center gap-2 transition-colors">
+                    <i data-lucide="copy" class="w-4 h-4"></i> Скопировать текст
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. ПРАВИЛА СУБОРДИНАЦИИ -->
+        <section id="subordination" class="scroll-mt-24">
+            <div class="mb-8">
+                <span class="text-xs font-mono uppercase tracking-widest text-tactical-sand">ЭТАП 02 // ДИСЦИПЛИНА РЕЧИ</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Правила субординации и общения</h2>
+                <p class="text-sm text-tactical-muted mt-2 max-w-2xl">
+                    Обращение к старшим по званию осуществляется строго на «Вы» и по форме: <span class="text-white font-mono bg-tactical-card px-1.5 py-0.5 rounded border border-tactical-border">«Товарищ [Звание], разрешите обратиться?»</span>
+                </p>
+            </div>
+
+            <div class="bg-tactical-surface border border-tactical-border rounded-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-tactical-card border-b border-tactical-border text-xs font-mono uppercase tracking-wider">
+                                <th class="py-4 px-5 text-tactical-danger flex items-center gap-2">
+                                    <i data-lucide="x-circle" class="w-4 h-4"></i> Гражданский жаргон (Запрещено)
+                                </th>
+                                <th class="py-4 px-5 text-tactical-oliveLight">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="check-circle" class="w-4 h-4"></i> Уставная речь (Правильно)
+                                    </div>
+                                </th>
+                                <th class="py-4 px-5 text-tactical-muted hidden sm:table-cell">Примечание</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-tactical-border/60 text-sm">
+                            <tr class="hover:bg-tactical-card/40 transition-colors">
+                                <td class="py-3.5 px-5 text-tactical-muted line-through decoration-tactical-danger/60">Да / Ага / Ок / Плюс</td>
+                                <td class="py-3.5 px-5 font-semibold text-white">«Так точно!»</td>
+                                <td class="py-3.5 px-5 text-xs text-tactical-muted hidden sm:table-cell">Подтверждение приказа или согласия</td>
+                            </tr>
+                            <tr class="hover:bg-tactical-card/40 transition-colors">
+                                <td class="py-3.5 px-5 text-tactical-muted line-through decoration-tactical-danger/60">Нет / Неа / Не буду</td>
+                                <td class="py-3.5 px-5 font-semibold text-white">«Никак нет!»</td>
+                                <td class="py-3.5 px-5 text-xs text-tactical-muted hidden sm:table-cell">Отрицательный ответ старшему</td>
+                            </tr>
+                            <tr class="hover:bg-tactical-card/40 transition-colors">
+                                <td class="py-3.5 px-5 text-tactical-muted line-through decoration-tactical-danger/60">Можно спросить? / Эй, командир</td>
+                                <td class="py-3.5 px-5 font-semibold text-white">«Товарищ [Звание], разрешите обратиться?»</td>
+                                <td class="py-3.5 px-5 text-xs text-tactical-muted hidden sm:table-cell">Обязательно перед любым вопросом</td>
+                            </tr>
+                            <tr class="hover:bg-tactical-card/40 transition-colors">
+                                <td class="py-3.5 px-5 text-tactical-muted line-through decoration-tactical-danger/60">Извините / Сорян / Мой косяк</td>
+                                <td class="py-3.5 px-5 font-semibold text-white">«Виноват, исправлюсь!»</td>
+                                <td class="py-3.5 px-5 text-xs text-tactical-muted hidden sm:table-cell">При получении замечания</td>
+                            </tr>
+                            <tr class="hover:bg-tactical-card/40 transition-colors">
+                                <td class="py-3.5 px-5 text-tactical-muted line-through decoration-tactical-danger/60">Не знаю / Хз / Без понятия</td>
+                                <td class="py-3.5 px-5 font-semibold text-white">«Не могу знать!»</td>
+                                <td class="py-3.5 px-5 text-xs text-tactical-muted hidden sm:table-cell">Если не владеете информацией</td>
+                            </tr>
+                            <tr class="hover:bg-tactical-card/40 transition-colors">
+                                <td class="py-3.5 px-5 text-tactical-muted line-through decoration-tactical-danger/60">Понял / Сделаю / Хорошо</td>
+                                <td class="py-3.5 px-5 font-semibold text-white">«Есть!» или «Будет выполнено!»</td>
+                                <td class="py-3.5 px-5 text-xs text-tactical-muted hidden sm:table-cell">Принятие приказа к исполнению</td>
+                            </tr>
+                            <tr class="hover:bg-tactical-card/40 transition-colors">
+                                <td class="py-3.5 px-5 text-tactical-muted line-through decoration-tactical-danger/60">Привет / Ку / Здарова</td>
+                                <td class="py-3.5 px-5 font-semibold text-white">«Здравия желаю, товарищ [Звание]!»</td>
+                                <td class="py-3.5 px-5 text-xs text-tactical-muted hidden sm:table-cell">Воинское приветствие при встрече</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. ТЕН-КОДЫ И ГЕНЕРАТОР ДОКЛАДОВ В РАЦИЮ -->
+        <section id="radio" class="scroll-mt-24">
+            <div class="mb-8">
+                <span class="text-xs font-mono uppercase tracking-widest text-tactical-sand">ЭТАП 03 // РАДИООБМЕН</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Тен-коды и генератор докладов</h2>
+                <p class="text-sm text-tactical-muted mt-2">Используйте тен-коды для краткости эфира. Запрещено засорять рацию (флуд, МГ, выяснение отношений).</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Левая колонка: Справочник тен-кодов с поиском -->
+                <div class="lg:col-span-7 bg-tactical-surface border border-tactical-border rounded-xl p-5 sm:p-6 flex flex-col">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="radio-receiver" class="w-5 h-5 text-tactical-sand"></i> Таблица радиокодов
+                        </h3>
+                        <!-- Поиск по кодам -->
+                        <div class="relative w-full sm:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-tactical-muted absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="code-search" placeholder="Поиск (напр. 10-4 или помощь)..." 
+                                class="w-full bg-tactical-bg border border-tactical-border rounded-lg pl-9 pr-3 py-1.5 text-xs text-white placeholder-tactical-muted focus:outline-none focus:border-tactical-sand transition-colors">
+                        </div>
+                    </div>
+
+                    <div id="tencodes-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[380px] overflow-y-auto pr-1">
+                        <!-- Генерируется через JS -->
+                    </div>
+                </div>
+
+                <!-- Правая колонка: Интерактивный генератор доклада -->
+                <div class="lg:col-span-5 bg-tactical-card border-2 border-tactical-olive/60 rounded-xl p-5 sm:p-6 flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-2.5 py-1 rounded bg-tactical-sand/20 text-tactical-sand font-mono text-xs font-bold flex items-center gap-1.5">
+                                <i data-lucide="terminal" class="w-3.5 h-3.5"></i> ГЕНЕРАТОР РАЦИИ
+                            </span>
+                            <span class="text-xs font-mono text-tactical-muted">КАНАЛ: /r</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Сформировать доклад с поста</h3>
+                        <p class="text-xs text-tactical-muted mb-5">Заполните данные и скопируйте готовую строку для игрового чата.</p>
+
+                        <div class="space-y-4">
+                            <!-- Ввод звания и фамилии -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-mono text-tactical-muted mb-1">Ваше звание</label>
+                                    <select id="rep-rank" class="w-full bg-tactical-bg border border-tactical-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-tactical-sand">
+                                        <option value="Рядовой">Рядовой</option>
+                                        <option value="Ефрейтор">Ефрейтор</option>
+                                        <option value="Мл. Сержант">Мл. Сержант</option>
+                                        <option value="Сержант">Сержант</option>
+                                        <option value="Ст. Сержант">Ст. Сержант</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-mono text-tactical-muted mb-1">Фамилия / Позывной</label>
+                                    <input type="text" id="rep-name" value="Громов" placeholder="Например: Волков" 
+                                        class="w-full bg-tactical-bg border border-tactical-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-tactical-sand">
+                                </div>
+                            </div>
+
+                            <!-- Выбор поста -->
+                            <div>
+                                <label class="block text-xs font-mono text-tactical-muted mb-1">Пост / Маршрут</label>
+                                <select id="rep-post" class="w-full bg-tactical-bg border border-tactical-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-tactical-sand">
+                                    <option value="КПП-1">КПП-1 (Главный въезд)</option>
+                                    <option value="КПП-2">КПП-2 (Запасной выезд)</option>
+                                    <option value="Вышка №1">Вышка №1 (Периметр)</option>
+                                    <option value="Главный Склад">Главный Склад (ГС)</option>
+                                    <option value="Патруль базы">Патруль периметра базы</option>
+                                </select>
+                            </div>
+
+                            <!-- Состояние -->
+                            <div>
+                                <label class="block text-xs font-mono text-tactical-muted mb-1">Состояние на посту</label>
+                                <div class="grid grid-cols-3 gap-2" id="status-buttons">
+                                    <button type="button" data-status="Стабильно, без происшествий (10-4)" class="status-btn active-status px-2 py-2 rounded-lg border text-xs font-semibold transition-all bg-tactical-olive/40 border-tactical-oliveLight text-white">
+                                        Стабильно
+                                    </button>
+                                    <button type="button" data-status="Обнаружен посторонний у КПП, веду проверку" class="status-btn px-2 py-2 rounded-lg border border-tactical-border bg-tactical-bg text-tactical-muted hover:text-white text-xs font-semibold transition-all">
+                                        Посторонний
+                                    </button>
+                                    <button type="button" data-status="КОД-0 / ЧС! Нападение на пост, запрашиваю подкрепление (10-34)!" class="status-btn px-2 py-2 rounded-lg border border-tactical-border bg-tactical-bg text-tactical-muted hover:text-tactical-danger text-xs font-semibold transition-all">
+                                        ЧС / Атака
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Предпросмотр и кнопка копирования -->
+                    <div class="mt-6 pt-4 border-t border-tactical-border">
+                        <label class="block text-[11px] font-mono uppercase text-tactical-sand mb-1.5">Готовая строка для чата:</label>
+                        <div class="bg-tactical-bg border border-tactical-border rounded-lg p-3 font-mono text-xs text-tactical-text break-words select-all mb-3" id="report-preview">
+                            /r [КПП-1] Докладывает: Рядовой Громов. Пост: КПП-1. Состояние: Стабильно, без происшествий (10-4).
+                        </div>
+                        <button onclick="copyReport()" class="w-full py-2.5 px-4 rounded-lg bg-tactical-sand hover:bg-tactical-sandDark text-tactical-bg font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-lg">
+                            <i data-lucide="clipboard-copy" class="w-4 h-4"></i> Скопировать доклад
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. ОСНОВНЫЕ ПРАВИЛА И ЗАПРЕТЫ (ВЫЖИМКА ИЗ УСТАВА) -->
+        <section id="charter" class="scroll-mt-24">
+            <div class="mb-8">
+                <span class="text-xs font-mono uppercase tracking-widest text-tactical-sand">ЭТАП 04 // РЕГЛАМЕНТ СЛУЖБЫ</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Выжимка из Устава и правила КПП</h2>
+                <p class="text-sm text-tactical-muted mt-2">Четыре базовых столпа безопасности, за нарушение которых следует немедленное увольнение с занесением в ЧС.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Карточка 1: Поведение на КПП -->
+                <div class="bg-tactical-surface border border-tactical-border rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-tactical-sand/15 text-tactical-sand flex items-center justify-center">
+                            <i data-lucide="door-closed" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Пропускной режим на КПП</h3>
+                            <span class="text-xs font-mono text-tactical-muted">Глава IV Устава ВС</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2.5 text-sm text-tactical-text">
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="check" class="w-4 h-4 text-tactical-oliveLight shrink-0 mt-1"></i>
+                            <span>Любое гражданское лицо обязано находиться минимум в <strong>15 метрах</strong> от шлагбаума КПП.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="check" class="w-4 h-4 text-tactical-oliveLight shrink-0 mt-1"></i>
+                            <span>При приближении гражданина: представиться, попросить убрать оружие (если есть) и предъявить паспорт/удостоверение.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="x" class="w-4 h-4 text-tactical-danger shrink-0 mt-1"></i>
+                            <span>Запрещено открывать шлагбаум посторонним без прямого приказа офицера по рации.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 2: Правила открытия огня -->
+                <div class="bg-tactical-surface border border-tactical-border rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-tactical-danger/15 text-tactical-danger flex items-center justify-center">
+                            <i data-lucide="flame" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Правила применения оружия</h3>
+                            <span class="text-xs font-mono text-tactical-muted">Глава V Устава ВС</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2.5 text-sm text-tactical-text">
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-tactical-warning shrink-0 mt-1"></i>
+                            <span><strong>Без предупреждения</strong> огонь открывается только при вооруженном нападении на бойца или прорыве транспорта через КПП.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="check" class="w-4 h-4 text-tactical-oliveLight shrink-0 mt-1"></i>
+                            <span>Если безоружный гражданин перелез через забор: прикажите покинуть территорию, сделайте предупредительный выстрел в воздух, и только при неподчинении — огонь на поражение.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="x" class="w-4 h-4 text-tactical-danger shrink-0 mt-1"></i>
+                            <span>Стрельба по гражданам за пределами желтой зоны без причины (DM) строго запрещена.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 3: Служебный транспорт -->
+                <div class="bg-tactical-surface border border-tactical-border rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-tactical-olive/30 text-tactical-oliveLight flex items-center justify-center">
+                            <i data-lucide="truck" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Использование автопарка</h3>
+                            <span class="text-xs font-mono text-tactical-muted">Глава VI Устава ВС</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2.5 text-sm text-tactical-text">
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="x" class="w-4 h-4 text-tactical-danger shrink-0 mt-1"></i>
+                            <span>Рядовым и Ефрейторам <strong>строго запрещено</strong> брать любую военную технику без разрешения старшего состава.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="check" class="w-4 h-4 text-tactical-oliveLight shrink-0 mt-1"></i>
+                            <span>Грузовые фуры (Barracks) используются исключительно для поставок материалов в гос. структуры в составе колонны.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="check" class="w-4 h-4 text-tactical-oliveLight shrink-0 mt-1"></i>
+                            <span>После использования техника должна быть заправлена и припаркована строго на штатном месте.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 4: Дезертирство и самовол -->
+                <div class="bg-tactical-surface border border-tactical-border rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-tactical-warning/15 text-tactical-warning flex items-center justify-center">
+                            <i data-lucide="ban" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Запрет на самовольное оставление</h3>
+                            <span class="text-xs font-mono text-tactical-muted">Глава II Устава ВС</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2.5 text-sm text-tactical-text">
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="x" class="w-4 h-4 text-tactical-danger shrink-0 mt-1"></i>
+                            <span>Покидать территорию военной базы в форме или без неё в рабочее время без увольнительного билета — <strong>дезертирство</strong>.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="x" class="w-4 h-4 text-tactical-danger shrink-0 mt-1"></i>
+                            <span>Запрещено спать (AFK) на постах, плацу или в строю. Отдых разрешен только в казарме.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="check" class="w-4 h-4 text-tactical-oliveLight shrink-0 mt-1"></i>
+                            <span>Для выезда в город по личным делам (банк, больница) необходимо запросить разрешение у офицера (от Майора и выше).</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. СИСТЕМА ЗВАНИЙ (ИЕРАРХИЯ) -->
+        <section id="ranks" class="scroll-mt-24">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+                <div>
+                    <span class="text-xs font-mono uppercase tracking-widest text-tactical-sand">ЭТАП 05 // КАРЬЕРНЫЙ РОСТ</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Табель о рангах (Иерархия)</h2>
+                </div>
+                <!-- Переключатель вкладок составов -->
+                <div class="inline-flex rounded-lg bg-tactical-surface p-1 border border-tactical-border self-start">
+                    <button onclick="filterRanks('all')" id="tab-all" class="rank-tab px-3 py-1.5 rounded-md text-xs font-semibold bg-tactical-sand text-tactical-bg transition-colors">Все составы</button>
+                    <button onclick="filterRanks('private')" id="tab-private" class="rank-tab px-3 py-1.5 rounded-md text-xs font-semibold text-tactical-muted hover:text-white transition-colors">Рядовой</button>
+                    <button onclick="filterRanks('sergeant')" id="tab-sergeant" class="rank-tab px-3 py-1.5 rounded-md text-xs font-semibold text-tactical-muted hover:text-white transition-colors">Сержантский</button>
+                    <button onclick="filterRanks('officer')" id="tab-officer" class="rank-tab px-3 py-1.5 rounded-md text-xs font-semibold text-tactical-muted hover:text-white transition-colors">Офицерский</button>
+                </div>
+            </div>
+
+            <div id="ranks-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Заполняется динамически через JS -->
+            </div>
+        </section>
+
+        <!-- 7. ИНТЕРАКТИВНЫЙ МИНИ-ТЕСТ «ПРОВЕРКА ГОТОВНОСТИ К ПРИСЯГЕ» -->
+        <section id="exam" class="scroll-mt-24">
+            <div class="bg-tactical-surface border border-tactical-border rounded-2xl p-6 sm:p-10 relative overflow-hidden">
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-8">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tactical-sand/15 text-tactical-sand font-mono text-xs uppercase tracking-wider mb-3">
+                            <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> ЭКЗАМЕНАЦИОННЫЙ МОДУЛЬ
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white">Проверка готовности к присяге</h2>
+                        <p class="text-sm text-tactical-muted mt-2">Ответь на 5 контрольных вопросов по уставу, субординации и рации, чтобы узнать, готов ли ты к строевому смотру.</p>
+                    </div>
+
+                    <!-- Контейнер квиза -->
+                    <div id="quiz-container" class="bg-tactical-card border border-tactical-border rounded-xl p-5 sm:p-8">
+                        <!-- Прогресс-бар -->
+                        <div class="flex items-center justify-between text-xs font-mono text-tactical-muted mb-2">
+                            <span id="quiz-progress-text">ВОПРОС 1 ИЗ 5</span>
+                            <span id="quiz-score-badge" class="text-tactical-sand">РЕЗУЛЬТАТ: 0/5</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-tactical-bg rounded-full overflow-hidden mb-6">
+                            <div id="quiz-progress-bar" class="h-full bg-tactical-sand transition-all duration-300" style="width: 20%"></div>
+                        </div>
+
+                        <!-- Текст вопроса -->
+                        <h3 id="quiz-question" class="text-lg sm:text-xl font-bold text-white mb-5 leading-snug">
+                            Загрузка вопроса...
+                        </h3>
+
+                        <!-- Варианты ответов -->
+                        <div id="quiz-options" class="space-y-3">
+                            <!-- Кнопки вариантов через JS -->
+                        </div>
+
+                        <!-- Пояснение после ответа -->
+                        <div id="quiz-feedback" class="hidden mt-5 p-4 rounded-lg border text-sm">
+                        </div>
+
+                        <!-- Кнопка "Далее" -->
+                        <div class="mt-6 flex justify-end">
+                            <button id="quiz-next-btn" onclick="nextQuestion()" class="hidden px-6 py-2.5 rounded-lg bg-tactical-sand hover:bg-tactical-sandDark text-tactical-bg font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2">
+                                Следующий вопрос <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Экран результатов квиза -->
+                    <div id="quiz-result" class="hidden bg-tactical-card border border-tactical-border rounded-xl p-6 sm:p-8 text-center">
+                        <div id="result-icon-box" class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4">
+                            <i id="result-icon" data-lucide="award" class="w-8 h-8"></i>
+                        </div>
+                        <span id="result-badge" class="px-3 py-1 rounded font-mono text-xs font-bold uppercase tracking-wider">ВЕРДИКТ</span>
+                        <h3 id="result-title" class="text-2xl font-extrabold text-white mt-3 mb-2">Заголовок результата</h3>
+                        <p id="result-desc" class="text-sm text-tactical-muted max-w-md mx-auto mb-6">Описание результата</p>
+                        
+                        <div class="inline-flex items-center gap-4 px-5 py-3 rounded-xl bg-tactical-bg border border-tactical-border mb-6">
+                            <div class="text-left">
+                                <span class="block text-[10px] font-mono text-tactical-muted uppercase">Набрано баллов</span>
+                                <span id="result-score" class="text-xl font-mono font-bold text-tactical-sand">5 / 5</span>
+                            </div>
+                            <div class="h-8 w-px bg-tactical-border"></div>
+                            <div class="text-left">
+                                <span class="block text-[10px] font-mono text-tactical-muted uppercase">Статус допуска</span>
+                                <span id="result-status-text" class="text-sm font-bold text-tactical-oliveLight">ДОПУЩЕН</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button onclick="restartQuiz()" class="px-6 py-2.5 rounded-lg bg-tactical-olive/40 hover:bg-tactical-olive text-white border border-tactical-oliveLight/40 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center gap-2">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Пройти проверку заново
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Подвал сайта -->
+    <footer class="border-t border-tactical-border bg-tactical-surface mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5">
+                <i data-lucide="shield" class="w-5 h-5 text-tactical-sand"></i>
+                <span class="text-xs font-mono text-tactical-muted">ВООРУЖЕННЫЕ СИЛЫ ШТАТА // УЧЕБНЫЙ ЦЕНТР</span>
+            </div>
+            <p class="text-xs text-tactical-muted text-center sm:text-right">
+                Служить и защищать. Соблюдайте Устав и субординацию.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Скрипты логики сайта -->
+    <script>
+        // Инициализация иконок Lucide
+        lucide.createIcons();
+
+        // Мобильное меню
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Система уведомлений (Toast)
+        let toastTimeout;
+        function showToast(title, desc) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-desc').textContent = desc;
+            
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        // Универсальная функция копирования в буфер обмена (через textarea + execCommand для совместимости с iframe)
+        function copyToClipboardFallback(text, title, desc) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast(title, desc);
+            } catch (err) {
+                console.error('Ошибка копирования:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function copyText(elementId, toastTitle) {
+            const text = document.getElementById(elementId).innerText;
+            copyToClipboardFallback(text, toastTitle, 'Текст готов к вставке в чат');
+        }
+
+        // ==========================================
+        // ДАННЫЕ И ЛОГИКА: ТЕН-КОДЫ
+        // ==========================================
+        const tenCodes = [
+            { code: '10-4', meaning: 'Принято / Вас понял / Так точно', tag: 'Базовый' },
+            { code: '10-6', meaning: 'Занят / Не могу выполнить сейчас', tag: 'Статус' },
+            { code: '10-8', meaning: 'Заступил на пост / Готов к работе', tag: 'Пост' },
+            { code: '10-10', meaning: 'Отрицание / Никак нет / Отмена', tag: 'Базовый' },
+            { code: '10-20', meaning: 'Мое текущее местоположение (координаты)', tag: 'Навигация' },
+            { code: '10-26', meaning: 'Последняя информация отменяется', tag: 'Базовый' },
+            { code: '10-34', meaning: 'Требуется подкрепление на позицию!', tag: 'Тревога' },
+            { code: '10-50', meaning: 'Веду преследование / Нарушитель периметра', tag: 'Тревога' },
+            { code: '10-70', meaning: 'Запрашиваю разрешение на взлет / выезд', tag: 'Техника' },
+            { code: '10-99', meaning: 'Задание выполнено / Ситуация урегулирована', tag: 'Статус' },
+            { code: 'КОД-0', meaning: 'Боевая тревога! Нападение на военную базу', tag: 'ЧС' },
+            { code: 'КОД-1', meaning: 'Состояние стабильное, угроз не обнаружено', tag: 'Пост' }
+        ];
+
+        const tencodesListEl = document.getElementById('tencodes-list');
+        const codeSearchInput = document.getElementById('code-search');
+
+        function renderTenCodes(filter = '') {
+            const q = filter.toLowerCase().trim();
+            const filtered = tenCodes.filter(item => 
+                item.code.toLowerCase().includes(q) || 
+                item.meaning.toLowerCase().includes(q) ||
+                item.tag.toLowerCase().includes(q)
+            );
+
+            if (filtered.length === 0) {
+                tencodesListEl.innerHTML = `<div class="col-span-2 text-center py-8 text-xs font-mono text-tactical-muted">По запросу «${filter}» кодов не найдено.</div>`;
+                return;
+            }
+
+            tencodesListEl.innerHTML = filtered.map(item => {
+                const isAlert = item.tag === 'Тревога' || item.tag === 'ЧС';
+                const badgeClass = isAlert 
+                    ? 'bg-tactical-danger/20 text-tactical-danger border-tactical-danger/40' 
+                    : 'bg-tactical-olive/30 text-tactical-sand border-tactical-oliveLight/30';
+
+                return `
+                    <div onclick="copyToClipboardFallback('${item.code}', 'Код ${item.code} скопирован', '${item.meaning}')" 
+                         title="Нажмите, чтобы скопировать код"
+                         class="p-3 rounded-lg bg-tactical-bg border border-tactical-border hover:border-tactical-sand/60 cursor-pointer transition-all flex items-start justify-between gap-2 group">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-mono font-bold text-sm text-white group-hover:text-tactical-sand transition-colors">${item.code}</span>
+                                <span class="text-[10px] font-mono px-1.5 py-0.2 rounded border ${badgeClass}">${item.tag}</span>
+                            </div>
+                            <p class="text-xs text-tactical-muted leading-snug">${item.meaning}</p>
+                        </div>
+                        <i data-lucide="copy" class="w-3.5 h-3.5 text-tactical-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1"></i>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        codeSearchInput.addEventListener('input', (e) => renderTenCodes(e.target.value));
+        renderTenCodes();
+
+        // ==========================================
+        // ДАННЫЕ И ЛОГИКА: ГЕНЕРАТОР ДОКЛАДА
+        // ==========================================
+        const repRank = document.getElementById('rep-rank');
+        const repName = document.getElementById('rep-name');
+        const repPost = document.getElementById('rep-post');
+        const reportPreview = document.getElementById('report-preview');
+        let currentStatus = 'Стабильно, без происшествий (10-4)';
+
+        function updateReportPreview() {
+            const rank = repRank.value;
+            const name = repName.value.trim() || 'Боец';
+            const post = repPost.value;
+            const text = `/r [${post}] Докладывает: ${rank} ${name}. Пост: ${post}. Состояние: ${currentStatus}.`;
+            reportPreview.textContent = text;
+        }
+
+        repRank.addEventListener('change', updateReportPreview);
+        repName.addEventListener('input', updateReportPreview);
+        repPost.addEventListener('change', updateReportPreview);
+
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.status-btn').forEach(b => {
+                    b.classList.remove('bg-tactical-olive/40', 'border-tactical-oliveLight', 'text-white', 'bg-tactical-danger/20', 'border-tactical-danger', 'text-tactical-danger');
+                    b.classList.add('border-tactical-border', 'bg-tactical-bg', 'text-tactical-muted');
+                });
+                
+                currentStatus = btn.getAttribute('data-status');
+                btn.classList.remove('border-tactical-border', 'bg-tactical-bg', 'text-tactical-muted');
+                
+                if (currentStatus.includes('КОД-0')) {
+                    btn.classList.add('bg-tactical-danger/20', 'border-tactical-danger', 'text-tactical-danger');
+                } else {
+                    btn.classList.add('bg-tactical-olive/40', 'border-tactical-oliveLight', 'text-white');
+                }
+                updateReportPreview();
+            });
+        });
+
+        function copyReport() {
+            const text = reportPreview.textContent;
+            copyToClipboardFallback(text, 'Доклад скопирован!', 'Откройте чат (F6 / T) и нажмите Ctrl+V');
+        }
+
+        // ==========================================
+        // ДАННЫЕ И ЛОГИКА: СИСТЕМА ЗВАНИЙ
+        // ==========================================
+        const ranksData = [
+            { rank: '1. Рядовой', group: 'private', groupName: 'Рядовой состав', desc: 'Новобранец на стадии прохождения КМБ. Изучает устав, присягу и базовую строевую подготовку.', tasks: 'Обучение, сдача присяги' },
+            { rank: '2. Ефрейтор', group: 'private', groupName: 'Рядовой состав', desc: 'Полноценный боец, сдавший присягу. Допускается к несению караульной службы на КПП и вышках.', tasks: 'Охрана КПП, доклады в рацию' },
+            { rank: '3. Мл. Сержант', group: 'sergeant', groupName: 'Сержантский состав', desc: 'Опытный боец. Может возглавлять караул на посту и сопровождать колонны снабжения.', tasks: 'Контроль постов, поставки' },
+            { rank: '4. Сержант', group: 'sergeant', groupName: 'Сержантский состав', desc: 'Командир отделения. Следит за дисциплиной рядового состава, проводит тренировки.', tasks: 'Руководство отделением' },
+            { rank: '5. Ст. Сержант / Старшина', group: 'sergeant', groupName: 'Сержантский состав', desc: 'Старший среди сержантов. Помогает офицерам в проведении призывов и обучении рекрутов.', tasks: 'Помощь на призывах, КМБ' },
+            { rank: '6. Лейтенант / Капитан', group: 'officer', groupName: 'Мл. Офицерский состав', desc: 'Командиры взводов и инструкторы Учебного Корпуса. Принимают экзамены и присягу.', tasks: 'Прием присяги, командование' },
+            { rank: '7. Майор / Подполковник', group: 'officer', groupName: 'Ст. Офицерский состав', desc: 'Руководство подразделений. Выдают увольнительные, организуют спецоперации и поставки.', tasks: 'Управление подразделениями' },
+            { rank: '8. Полковник', group: 'officer', groupName: 'Высший состав', desc: 'Заместитель Генерала. Отвечает за кадровую политику, наборы и общую боеготовность части.', tasks: 'Зам. командира части' },
+            { rank: '9. Генерал Армии', group: 'officer', groupName: 'Высший состав', desc: 'Главнокомандующий Вооруженными Силами. Определяет стратегию развития фракции.', tasks: 'Главнокомандующий ВС' }
+        ];
+
+        const ranksGrid = document.getElementById('ranks-grid');
+
+        function renderRanks(filterGroup = 'all') {
+            const list = filterGroup === 'all' ? ranksData : ranksData.filter(r => r.group === filterGroup);
+            
+            ranksGrid.innerHTML = list.map(item => {
+                let badgeColor = 'bg-tactical-olive/30 text-tactical-oliveLight border-tactical-oliveLight/30';
+                if (item.group === 'sergeant') badgeColor = 'bg-tactical-sand/15 text-tactical-sand border-tactical-sand/30';
+                if (item.group === 'officer') badgeColor = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+
+                return `
+                    <div class="bg-tactical-surface border border-tactical-border rounded-xl p-5 flex flex-col justify-between hover:border-tactical-sand/50 transition-colors">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="text-[11px] font-mono px-2 py-0.5 rounded border ${badgeColor}">${item.groupName}</span>
+                                <i data-lucide="chevron-up" class="w-4 h-4 text-tactical-sand"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-white mb-2">${item.rank}</h3>
+                            <p class="text-xs text-tactical-muted leading-relaxed">${item.desc}</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-tactical-border/60 flex items-center gap-1.5 text-[11px] font-mono text-tactical-text">
+                            <i data-lucide="target" class="w-3.5 h-3.5 text-tactical-sand shrink-0"></i>
+                            <span>Задачи: ${item.tasks}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function filterRanks(group) {
+            document.querySelectorAll('.rank-tab').forEach(tab => {
+                tab.classList.remove('bg-tactical-sand', 'text-tactical-bg');
+                tab.classList.add('text-tactical-muted');
+            });
+            const activeTab = document.getElementById(`tab-${group}`);
+            activeTab.classList.remove('text-tactical-muted');
+            activeTab.classList.add('bg-tactical-sand', 'text-tactical-bg');
+            renderRanks(group);
+        }
+
+        renderRanks('all');
+
+        // ==========================================
+        // ДАННЫЕ И ЛОГИКА: ИНТЕРАКТИВНЫЙ ТЕСТ (КВИЗ)
+        // ==========================================
+        const quizQuestions = [
+            {
+                q: 'К вам подошел Майор и спросил, все ли спокойно на посту. Как вы должны ответить согласно Уставу?',
+                options: [
+                    '«Да, товарищ Майор, всё ок»',
+                    '«Так точно, товарищ Майор! На посту без происшествий»',
+                    '«Привет, да, пока никого не было»'
+                ],
+                correct: 1,
+                explanation: 'В армии слово «Да» заменяется на уставное «Так точно!», с обязательным указанием звания старшего.'
+            },
+            {
+                q: 'Что означает радиокод «10-34» в эфире рации?',
+                options: [
+                    'Вас понял, принимаю информацию',
+                    'Заступаю на пост КПП-1',
+                    'Требуется подкрепление на позицию!'
+                ],
+                correct: 2,
+                explanation: 'Код 10-34 используется для экстренного вызова подкрепления при нападении или ЧС.'
+            },
+            {
+                q: 'К шлагбауму КПП вплотную подошел незнакомый гражданский без оружия. Ваши действия?',
+                options: [
+                    'Сразу открыть огонь на поражение',
+                    'Открыть шлагбаум и спросить, к кому он приехал',
+                    'Представиться, потребовать отойти на 15 метров от КПП и предъявить документы'
+                ],
+                correct: 2,
+                explanation: 'Гражданским запрещено находиться ближе 15 метров к КПП. Огонь без причины по безоружным строго запрещен.'
+            },
+            {
+                q: 'Разрешено ли Рядовому или Ефрейтору взять армейский внедорожник, чтобы съездить в магазин в город?',
+                options: [
+                    'Никак нет, это грубое нарушение Устава и дезертирство',
+                    'Так точно, если на базе сейчас нет офицеров',
+                    'Разрешено, если включить аварийку и быстро вернуться'
+                ],
+                correct: 0,
+                explanation: 'Младшему составу запрещено брать технику и покидать базу без увольнительного билета от старшего состава.'
+            },
+            {
+                q: 'Как правильно обратиться к старшему по званию, если вам нужно задать ему вопрос?',
+                options: [
+                    '«Товарищ Капитан, можно спросить?»',
+                    '«Товарищ Капитан, разрешите обратиться?»',
+                    '«Извините, товарищ Капитан, есть минутка?»'
+                ],
+                correct: 1,
+                explanation: 'Единственно верная уставная форма обращения для начала диалога — «Товарищ [Звание], разрешите обратиться?».'
+            }
+        ];
+
+        let currentQIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        const qProgressText = document.getElementById('quiz-progress-text');
+        const qScoreBadge = document.getElementById('quiz-score-badge');
+        const qProgressBar = document.getElementById('quiz-progress-bar');
+        const qQuestionEl = document.getElementById('quiz-question');
+        const qOptionsEl = document.getElementById('quiz-options');
+        const qFeedbackEl = document.getElementById('quiz-feedback');
+        const qNextBtn = document.getElementById('quiz-next-btn');
+
+        function loadQuestion() {
+            answered = false;
+            const current = quizQuestions[currentQIndex];
+            
+            qProgressText.textContent = `ВОПРОС ${currentQIndex + 1} ИЗ ${quizQuestions.length}`;
+            qScoreBadge.textContent = `РЕЗУЛЬТАТ: ${score}/${quizQuestions.length}`;
+            qProgressBar.style.width = `${((currentQIndex + 1) / quizQuestions.length) * 100}%`;
+            qQuestionEl.textContent = current.q;
+            
+            qFeedbackEl.classList.add('hidden');
+            qNextBtn.classList.add('hidden');
+
+            qOptionsEl.innerHTML = current.options.map((opt, idx) => `
+                <button onclick="selectAnswer(${idx})" id="opt-btn-${idx}" 
+                    class="w-full text-left p-4 rounded-xl bg-tactical-bg border border-tactical-border hover:border-tactical-sand/60 text-sm text-tactical-text transition-all flex items-center justify-between gap-3">
+                    <span>${opt}</span>
+                    <span class="w-5 h-5 rounded-full border border-tactical-border shrink-0 flex items-center justify-center text-xs font-mono text-tactical-muted">${idx + 1}</span>
+                </button>
+            `).join('');
+        }
+
+        function selectAnswer(selectedIdx) {
+            if (answered) return;
+            answered = true;
+
+            const current = quizQuestions[currentQIndex];
+            const isCorrect = selectedIdx === current.correct;
+
+            if (isCorrect) score++;
+            qScoreBadge.textContent = `РЕЗУЛЬТАТ: ${score}/${quizQuestions.length}`;
+
+            // Стилизация кнопок ответов
+            current.options.forEach((_, idx) => {
+                const btn = document.getElementById(`opt-btn-${idx}`);
+                btn.disabled = true;
+                btn.classList.remove('hover:border-tactical-sand/60');
+
+                if (idx === current.correct) {
+                    btn.classList.remove('bg-tactical-bg', 'border-tactical-border');
+                    btn.classList.add('bg-tactical-olive/30', 'border-tactical-oliveLight', 'text-white', 'font-semibold');
+                } else if (idx === selectedIdx && !isCorrect) {
+                    btn.classList.remove('bg-tactical-bg', 'border-tactical-border');
+                    btn.classList.add('bg-tactical-danger/20', 'border-tactical-danger', 'text-tactical-danger');
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            // Показ пояснения
+            qFeedbackEl.classList.remove('hidden', 'bg-tactical-olive/20', 'border-tactical-oliveLight/40', 'text-tactical-oliveLight', 'bg-tactical-danger/15', 'border-tactical-danger/40', 'text-tactical-danger');
+            if (isCorrect) {
+                qFeedbackEl.classList.add('bg-tactical-olive/20', 'border-tactical-oliveLight/40', 'text-tactical-text');
+                qFeedbackEl.innerHTML = `<strong class="text-tactical-oliveLight font-mono">[ВЕРНО]</strong> ${current.explanation}`;
+            } else {
+                qFeedbackEl.classList.add('bg-tactical-danger/15', 'border-tactical-danger/40', 'text-tactical-text');
+                qFeedbackEl.innerHTML = `<strong class="text-tactical-danger font-mono">[ОШИБКА]</strong> ${current.explanation}`;
+            }
+
+            qNextBtn.innerHTML = currentQIndex < quizQuestions.length - 1 
+                ? `Следующий вопрос <i data-lucide="arrow-right" class="w-4 h-4"></i>`
+                : `Завершить проверку <i data-lucide="check-circle" class="w-4 h-4"></i>`;
+            qNextBtn.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            const resultBox = document.getElementById('quiz-result');
+            resultBox.classList.remove('hidden');
+
+            const passed = score >= 4;
+            const iconBox = document.getElementById('result-icon-box');
+            const badge = document.getElementById('result-badge');
+            const title = document.getElementById('result-title');
+            const desc = document.getElementById('result-desc');
+            const statusText = document.getElementById('result-status-text');
+
+            document.getElementById('result-score').textContent = `${score} / ${quizQuestions.length}`;
+
+            if (passed) {
+                iconBox.className = 'w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 bg-tactical-olive/30 text-tactical-oliveLight border border-tactical-oliveLight/40';
+                iconBox.innerHTML = `<i data-lucide="award" class="w-8 h-8"></i>`;
+                badge.className = 'px-3 py-1 rounded font-mono text-xs font-bold uppercase tracking-wider bg-tactical-olive/30 text-tactical-oliveLight';
+                badge.textContent = 'ВЕРДИКТ КОМИССИИ: ГОДЕН';
+                title.textContent = 'Готов к принятию Присяги!';
+                desc.textContent = 'Отличный результат, боец! Ты усвоил базовый устав, правила субординации и радиообмена. Можешь смело запрашивать строй для сдачи присяги.';
+                statusText.className = 'text-sm font-bold text-tactical-oliveLight';
+                statusText.textContent = 'ДОПУЩЕН К ПРИСЯГЕ';
+            } else {
+                iconBox.className = 'w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 bg-tactical-danger/20 text-tactical-danger border border-tactical-danger/40';
+                iconBox.innerHTML = `<i data-lucide="alert-octagon" class="w-8 h-8"></i>`;
+                badge.className = 'px-3 py-1 rounded font-mono text-xs font-bold uppercase tracking-wider bg-tactical-danger/20 text-tactical-danger';
+                badge.textContent = 'ВЕРДИКТ КОМИССИИ: НЕЗАЧЕТ';
+                title.textContent = 'Отправлен на пересдачу';
+                desc.textContent = 'Для допуска к присяге необходимо набрать минимум 4 из 5 баллов. Изучи разделы «Субординация» и «Устав» выше и попробуй снова.';
+                statusText.className = 'text-sm font-bold text-tactical-danger';
+                statusText.textContent = 'ТРЕБУЕТСЯ ПОДГОТОВКА';
+            }
+            lucide.createIcons();
+        }
+
+        function restartQuiz() {
+            currentQIndex = 0;
+            score = 0;
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        // Запуск первого вопроса при загрузке
+        loadQuestion();
+    </script>
+</body>
+</html>
